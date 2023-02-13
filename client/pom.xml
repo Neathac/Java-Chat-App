@@ -29,7 +29,7 @@
                             <transformers>
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>grafm.Main</mainClass>
+                                    <mainClass>grafm.Client.Main</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

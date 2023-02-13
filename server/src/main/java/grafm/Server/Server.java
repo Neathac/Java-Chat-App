@@ -1,16 +1,12 @@
-package grafm;
+package grafm.Server;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import grafm.ClientHandler;
+
+import grafm.Server.ClientHandler;
 
 public class Server {
-
-  public static void main(String[] args) {
-    Server server = new Server();
-    server.start();
-  }
 
   public enum commands {
     LOGOUT,
@@ -39,7 +35,7 @@ public class Server {
         newThread.start();
       }
 
-    } catch(IOException e) {
+    } catch (IOException e) {
       System.out.println(e);
     }
   }
@@ -47,7 +43,7 @@ public class Server {
   void publishMessage(String message, ClientHandler excludeUser) throws IOException {
     for (ClientHandler aUser : handlers) {
       if (aUser != excludeUser) {
-          aUser.output.writeUTF(message);
+        aUser.output.writeUTF(message);
       }
     }
   }
@@ -61,15 +57,20 @@ public class Server {
 
   List<String> getUserNames(String groupName) {
     List<String> userNames = new Vector<String>();
-    for (ClientHandler handler : handlers) if (handler.groupName == groupName) userNames.add(handler.userName);
+    for (ClientHandler handler : handlers)
+      if (handler.groupName == groupName)
+        userNames.add(handler.userName);
     return userNames;
   }
 
   /**
-   * Returns true if there are other users connected (not count the currently connected user)
+   * Returns true if there are other users connected (not count the currently
+   * connected user)
    */
   boolean hasUsers(String groupName) {
-    for (ClientHandler handler : handlers) if (handler.groupName == groupName) return true;
+    for (ClientHandler handler : handlers)
+      if (handler.groupName == groupName)
+        return true;
     return false;
   }
 
