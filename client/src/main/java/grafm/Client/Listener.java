@@ -18,7 +18,11 @@ public class Listener implements Runnable {
                 System.out.println("\n" + response);
  
                 // prints the username after displaying the server's message
-                if (client.getUserName() != null) {
+                if (response.startsWith("Your new nick is: ")) {
+                   this.client.userName = response.split(" ")[4]; 
+                   System.out.print(response);
+                } 
+                else if (client.getUserName() != null) {
                     System.out.print("[" + client.getUserName() + "]: ");
                 }
             } catch (IOException ex) {

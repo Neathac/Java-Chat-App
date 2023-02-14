@@ -6,6 +6,7 @@ import java.net.*;
 public class Publisher implements Runnable {
     private Client client;
     Socket socket;
+    String userName;
 
     public Publisher(Socket socket, Client client) {
         this.client = client;
@@ -15,7 +16,7 @@ public class Publisher implements Runnable {
     @Override
     public void run() {
 
-        String userName = System.console().readLine("\nEnter your name: ");
+        userName = System.console().readLine("\nEnter your name: ");
         client.setUserName(userName);
         String text;
 

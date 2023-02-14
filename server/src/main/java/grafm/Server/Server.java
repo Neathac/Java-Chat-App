@@ -13,6 +13,8 @@ public class Server {
     CHANGE_NICK,
     LIST_COMMANDS,
     CHANGE_GROUP,
+    MESSAGE,
+    UNKNOWN,
   }
 
   private Set<ClientHandler> handlers = new HashSet<>();
@@ -72,6 +74,32 @@ public class Server {
       if (handler.groupName == groupName)
         return true;
     return false;
+  }
+
+  public commands identifyCommand(String entry) {
+    switch(entry.toLowerCase().trim()) {
+      case "\\logout":
+        return commands.LOGOUT;
+      case "\\change_group":
+        return commands.CHANGE_GROUP;
+      case "\\change_nick":
+        return commands.CHANGE_NICK;
+      case "\\help":
+        return commands.LIST_COMMANDS;
+      case "\\message":
+        return commands.MESSAGE;
+      default:
+        return commands.UNKNOWN;
+    }
+  }
+
+  public boolean message(String target, String message) {
+    boolean sent = false;
+    for (ClientHandler handler : handlers) if (handler.userName == target) { 
+      handler.output.writeUTF(message);
+      sent = true;
+    }
+    return sent;
   }
 
 }

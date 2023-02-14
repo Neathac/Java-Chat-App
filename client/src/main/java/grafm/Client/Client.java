@@ -7,7 +7,7 @@ public class Client {
     
     private final String HOSTNAME = "localhost";
     private final int PORT = 8089;
-    private String userName;
+    public String userName;
     public DataInputStream input;
     public DataOutputStream output;
  
@@ -32,6 +32,7 @@ public class Client {
 
     void setUserName(String userName) {
         this.userName = userName;
+        this.output.writeUtf(userName);
     }
  
     String getUserName() {
