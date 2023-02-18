@@ -4,9 +4,10 @@ import grafm.Client.Client;
 
 public class Main {
     public static void main(String[] args) {
-        //if (args.length < 2) return;
- 
-        Client client = new Client();
+        Client client;
+        if (args.length < 2) client = new Client();
+        else client = new Client(args[0], args[1]);
+        
         client.connect();
     }
 }

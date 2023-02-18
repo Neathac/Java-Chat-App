@@ -33,7 +33,7 @@ public class ClientHandler implements Runnable {
         try {
             userName = input.readUTF();
 
-            server.publishMessage("New user connected: " + userName, this);
+            server.publishMessage("New user connected: " + userName, this, this.groupName);
  
             String clientMessage;
             boolean keepReading = true;
@@ -44,40 +44,58 @@ public class ClientHandler implements Runnable {
                 if (clientMessage.startsWith("\\")) {
                    String[] splitMessage = clientMessage.split(" "); 
                    switch(server.identifyCommand(splitMessage[0])) {
-                        case commands.LOGOUT:
+                        case LOGOUT:
                             keepReading = false;
                             break;
-                        case commands.LIST_COMMANDS:
-                            output.writeUTF("\\logout - Terminates the connection");
-                            output.writeUTF("\\change_nick newName - Changes your nickname");
-                            output.writeUTF("\\change_group groupName - Switch to the named chat room");
-                            output.writeUTF("\\help - List all available commands");
-                            output.writeUTF("\\message userName myMessage - message only the specified user");
+                        case LIST_COMMANDS:
+                            String help = "\\logout - Terminates the connection \n" + 
+                            "\\change_nick newName - Changes your nickname \n" +
+                            "\\change_group groupName - Switch to the named chat room \n" +
+                            "\\help - List all available commands \n" + 
+                            "\\message userName myMessage - message only the specified user \n" +
+                            "\\list_users - Lists all users in your current group";
+                            output.writeUTF(help);
                             break;
-                        case commands.UNKNOWN:
+                        case UNKNOWN:
                             output.writeUTF("Command was not recognized");
                             break;
-                        case commands.MESSAGE:
+                        case MESSAGE:
                             if (splitMessage.length > 2) {
                                 String message = "";
-                                for(int i = 2; i < splitMessage.length; ++i) message += splitMessage[i];
-                                if(server.message(splitMessage[1], message)) output.writeUTF("Whispered to: " + splitMessage[1]);
+                                for(int i = 2; i < splitMessage.length; ++i) message += splitMessage[i] + " ";
+                                if(server.message(splitMessage[1], this.userName + " whispered to you: " + message)) output.writeUTF("Whispered to: " + splitMessage[1]);
                                 else output.writeUTF("ERROR: No such username found");
                             } else output.writeUTF("ERROR: No message to send");
                             break;
-                        case commands.CHANGE_GROUP:
-                            if (splitMessage.length > 1) this.groupName = splitMessage[1];
+                        case CHANGE_GROUP:
+                            if (splitMessage.length > 1) {
+                                String message = "";
+                                for(int i = 1; i < splitMessage.length; ++i) message += splitMessage[i] + " ";
+                                this.server.publishMessage(this.userName + " left the group.", this, this.groupName);
+                                this.groupName = message.trim();
+                                this.server.publishMessage(this.userName + " entered the group.", this, this.groupName);
+                            } 
                             else output.writeUTF("ERROR: No group specified");
                             break;
-                        case commands.CHANGE_NICK:
+                        case CHANGE_NICK:
                             if (splitMessage.length > 1) {
-                                this.userName = splitMessage[1];
+                                String message = "";
+                                for(int i = 1; i < splitMessage.length; ++i) message += splitMessage[i] + " ";
+                                this.server.publishMessage(this.userName + " changed his nick to: " + message.trim(), this, this.groupName);
+                                this.userName = message.trim();
                                 output.writeUTF("Your new nick is: " + this.userName);
                             }
                             else output.writeUTF("ERROR: No nick specified");
                             break;
+                        case LIST_USERS:
+                            List<String> users = this.server.getUserNames(this.groupName);
+                            String message = "Group " + this.groupName + " curently has: ";
+                            for(String name : users) message += name + ", ";
+                            message += "as active users";
+                            output.writeUTF(message);
+                            break;
                    }
-                } else server.publishMessage("[" + this.userName + "]: " + clientMessage, this);
+                } else server.publishMessage("[" + this.userName + "]: " + clientMessage, this, this.groupName);
             } while (keepReading);
  
             server.removeUser(this);
@@ -85,7 +103,11 @@ public class ClientHandler implements Runnable {
  
         } catch (IOException ex) {
             System.out.println("Error in UserThread: " + ex.getMessage());
-            ex.printStackTrace();
+            System.out.println("Connection with " + this.userName + " lost.");
+            try {
+              server.publishMessage("Connection with " + this.userName + " lost.", this, this.groupName);
+                server.removeUser(this);  
+            } catch(Exception e) {}; 
         }
     }
 

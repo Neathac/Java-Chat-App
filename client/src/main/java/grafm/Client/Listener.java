@@ -15,19 +15,19 @@ public class Listener implements Runnable {
         while (true) {
             try {
                 String response = client.input.readUTF();
-                System.out.println("\n" + response);
- 
-                // prints the username after displaying the server's message
                 if (response.startsWith("Your new nick is: ")) {
-                   this.client.userName = response.split(" ")[4]; 
-                   System.out.print(response);
-                } 
-                else if (client.getUserName() != null) {
+                    String[] splitMessage = response.split(" "); 
+                    String message = "";
+                    for(int i = 4; i < splitMessage.length; ++i) message += splitMessage[i] + " ";
+                    this.client.userName = message.trim();
+                }
+                System.out.println("\n" + response);
+                
+                if (client.getUserName() != null) {
                     System.out.print("[" + client.getUserName() + "]: ");
                 }
             } catch (IOException ex) {
-                System.out.println("Error reading from server: " + ex.getMessage());
-                ex.printStackTrace();
+                System.out.println("Server ended connection");
                 break;
             }
         }

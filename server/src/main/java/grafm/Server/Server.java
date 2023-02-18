@@ -14,11 +14,21 @@ public class Server {
     LIST_COMMANDS,
     CHANGE_GROUP,
     MESSAGE,
+    LIST_USERS,
     UNKNOWN,
   }
 
-  private Set<ClientHandler> handlers = new HashSet<>();
   private final int PORT = 8089;
+
+  public Server() {
+    PORT = 8089;
+  }
+
+  public Server(String port) {
+    PORT = Integer.parseInt(port);
+  }
+
+  private Set<ClientHandler> handlers = new HashSet<>();
 
   public void start() {
     try {
@@ -42,9 +52,9 @@ public class Server {
     }
   }
 
-  void publishMessage(String message, ClientHandler excludeUser) throws IOException {
+  void publishMessage(String message, ClientHandler excludeUser, String groupName) throws IOException {
     for (ClientHandler aUser : handlers) {
-      if (aUser != excludeUser) {
+      if (aUser != excludeUser && aUser.groupName.equals(groupName)) {
         aUser.output.writeUTF(message);
       }
     }
@@ -57,10 +67,10 @@ public class Server {
     }
   }
 
-  List<String> getUserNames(String groupName) {
+  public List<String> getUserNames(String groupName) {
     List<String> userNames = new Vector<String>();
     for (ClientHandler handler : handlers)
-      if (handler.groupName == groupName)
+      if (handler.groupName.equals(groupName))
         userNames.add(handler.userName);
     return userNames;
   }
@@ -88,6 +98,8 @@ public class Server {
         return commands.LIST_COMMANDS;
       case "\\message":
         return commands.MESSAGE;
+      case "\\list_users":
+        return commands.LIST_USERS;
       default:
         return commands.UNKNOWN;
     }
@@ -95,9 +107,15 @@ public class Server {
 
   public boolean message(String target, String message) {
     boolean sent = false;
-    for (ClientHandler handler : handlers) if (handler.userName == target) { 
-      handler.output.writeUTF(message);
-      sent = true;
+    for (ClientHandler handler : handlers) {
+      if (handler.userName.equals(target)) { 
+        try {
+          handler.output.writeUTF(message);
+          sent = true;
+        } catch (IOException e) {
+          System.out.println("Error writing to server: " + e.getMessage());
+        }
+      } 
     }
     return sent;
   }

@@ -22,19 +22,19 @@ public class Publisher implements Runnable {
 
         do {
             text = System.console().readLine("[" + userName + "]: ");
-            try {
-                client.output.writeUTF(text);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (text != null) {
+               try {
+                    client.output.writeUTF(text);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } 
             }
-
         } while (!text.equals("\\logout"));
 
         try {
             socket.close();
         } catch (IOException ex) {
-
-            System.out.println("Error writing to server: " + ex.getMessage());
+            System.out.println("Server closed the connection");
         }
     }
 }
