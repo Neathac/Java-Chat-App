@@ -6,10 +6,17 @@ import java.net.*;
 public class Listener implements Runnable {
     private Client client;
  
+    /**
+     * Constructor stores the instance of the caller
+     * @param client - Client instance to be stored
+     */
     public Listener(Client client) {
         this.client = client;
     }
  
+    /**
+     * While thread is running, continually listen to server responses and treat them
+     */
     @Override
     public void run() {
         while (true) {

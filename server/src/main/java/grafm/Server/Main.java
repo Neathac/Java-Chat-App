@@ -4,7 +4,9 @@ import grafm.Server.Server;
 
 public class Main {
     public static void main(String[] args) {
-        Server server = new Server();
-        server.start();
-      }
+      Server server;
+      if(args.length < 1) server = new Server();
+      else server = new Server(args[0]);
+      server.start();
+    }
 }

@@ -8,11 +8,19 @@ public class Publisher implements Runnable {
     Socket socket;
     String userName;
 
+    /**
+     * Constructor stores the open socket connection instance and caller Client instance
+     * @param socket - Open socket connection to store
+     * @param client - Caller Client to store
+     */
     public Publisher(Socket socket, Client client) {
         this.client = client;
         this.socket = socket;
     }
 
+    /**
+     * While thread is running, forwards user console input to the server indefinitely
+     */
     @Override
     public void run() {
 
@@ -33,8 +41,10 @@ public class Publisher implements Runnable {
 
         try {
             socket.close();
+            System.exit(0);
         } catch (IOException ex) {
             System.out.println("Server closed the connection");
+            System.exit(0);
         }
     }
 }

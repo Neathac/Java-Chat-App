@@ -3,24 +3,39 @@ package grafm.Client;
 import java.io.*;
 import java.net.*;
 
+/**
+ * Manages the clientside terminal
+ * Communicates with the server using Listener and Publisher classes
+ */
 public class Client {
 
-    private final String HOSTNAME;
-    private final int PORT;
+    private String HOSTNAME;
+    private int PORT;
     public String userName;
     public DataInputStream input;
     public DataOutputStream output;
 
+    /**
+     * Default constructor sets port to 8089 and Hostname to localhost
+     */
     public Client() {
         PORT = 8089;
         HOSTNAME = "localhost";
     }
 
+    /**
+     * Constructor allows the setting of port and hostname manually
+     * @param port - Port to send requests to
+     * @param hostName - Hostname of the server to connect to
+     */
     public Client(String port, String hostName) {
         PORT = Integer.parseInt(port);
         HOSTNAME = hostName;
     }
 
+    /**
+     * Connects to the server and starts listening for its responses in 2 threads
+     */
     public void connect() {
         try {
             Socket socket = new Socket(InetAddress.getByName(HOSTNAME), PORT);
@@ -40,6 +55,10 @@ public class Client {
         }
     }
 
+    /**
+     * Set the client username locally and send it to server
+     * @param userName - Name to be set
+     */
     void setUserName(String userName) {
         this.userName = userName;
         try {
@@ -50,6 +69,10 @@ public class Client {
         
     }
  
+    /**
+     * A username getter
+     * @return - Locally set username
+     */
     String getUserName() {
         return this.userName;
     }

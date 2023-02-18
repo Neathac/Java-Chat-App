@@ -6,6 +6,9 @@ import java.util.*;
 
 import grafm.Server.Server;
 
+/**
+ * A class meant for multithreading listening to a specific connection and handling its inputs
+ */
 public class ClientHandler implements Runnable {
 
     private Socket socket;
@@ -16,6 +19,11 @@ public class ClientHandler implements Runnable {
     String groupName;
     String userName;
 
+    /**
+     * Initiates input and output streams, saves references to the server and the socket
+     * @param server - A caller server instance
+     * @param socket - A Socket connection instance
+     */
     public ClientHandler(Server server, Socket socket) {
         this.socket = socket;
         this.server = server;
@@ -28,11 +36,17 @@ public class ClientHandler implements Runnable {
         }        
     }
 
+    /**
+     * While thread is running, listen to the client in an infinite loop
+     * Treats the client input and instructs the server accordingly
+     */
     @Override
     public void run() {
         try {
+            // Client always sends his nickname first
             userName = input.readUTF();
 
+            // Inform other users in the default group of his entry
             server.publishMessage("New user connected: " + userName, this, this.groupName);
  
             String clientMessage;
@@ -101,7 +115,11 @@ public class ClientHandler implements Runnable {
             server.removeUser(this);
             socket.close();
  
-        } catch (IOException ex) {
+        }
+        /**
+         * Typically occurs when clientside terminates connection 
+         */ 
+        catch (IOException ex) {
             System.out.println("Error in UserThread: " + ex.getMessage());
             System.out.println("Connection with " + this.userName + " lost.");
             try {
@@ -111,6 +129,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Lists all users present in the current channel of the client
+     * @throws IOException - Might attempt to write to connections who were terminated unexpectedly
+     */
     void printUsers() throws IOException {
         if (server.hasUsers(groupName)) {
             output.writeUTF("Connected users: " + server.getUserNames(groupName));
