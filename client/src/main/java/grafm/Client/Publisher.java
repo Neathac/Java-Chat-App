@@ -37,7 +37,7 @@ public class Publisher implements Runnable {
                     e.printStackTrace();
                 } 
             }
-        } while (!text.equals("\\logout"));
+        } while (text != null && !text.equals("\\logout"));
 
         try {
             socket.close();
